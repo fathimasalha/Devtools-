@@ -1,6 +1,23 @@
 import React, { useState } from 'react';
 import CodeEditor from './CodeEditor';
 import OutputPanel from './OutputPanel';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Sparkles, 
+  Code2, 
+  Trash2, 
+  Clipboard, 
+  Check, 
+  AlertCircle, 
+  Wrench, 
+  Clock, 
+  CheckCircle2, 
+  XCircle, 
+  Rocket, 
+  Lightbulb, 
+  FileCode2,
+  RefreshCw
+} from 'lucide-react';
 import './Beautifier.css';
 
 const languages = [
@@ -13,6 +30,18 @@ const languages = [
   { value: 'python', label: 'Python' }
 ];
 
+const sampleCodes = {
+  js: `function calculateTotal(items,taxRate=0.08){let subtotal=0;for(let i=0;i<items.length;i++){subtotal+=items[i].price*items[i].qty;}const tax=subtotal*taxRate;return {subtotal:subtotal,tax:tax,total:subtotal+tax};}console.log(calculateTotal([{price:10,qty:2},{price:15,qty:1}]));`,
+  python: `def process_user_data(users):
+    active_users=[u for u in users if u.get('is_active',False)]
+    sorted_users=sorted(active_users,key=lambda x:x['score'],reverse=True)
+    return {'total':len(users),'active_count':len(active_users),'top_user':sorted_users[0] if sorted_users else None}`,
+  json: `{"app":"DevTools","version":"1.0.0","settings":{"theme":"dark","autoSave":true,"tabSize":2},"features":["ipinfo","beautifier","wordcount","qrgenerator"],"active":true}`,
+  html: `<!DOCTYPE html><html><head><title>Sample</title><meta charset="utf-8"/></head><body><div id="root"><header class="header"><h1>Welcome</h1><p>Modern Dev Tools</p></header><main><section><button class="btn">Click me</button></section></main></div></body></html>`,
+  css: `.container{max-width:1200px;margin:0 auto;padding:20px;display:flex;flex-direction:column;align-items:center;}.btn{background:#667eea;color:#fff;border-radius:8px;padding:10px 20px;border:none;cursor:pointer;transition:all 0.3s ease;}.btn:hover{background:#764ba2;transform:translateY(-2px);}`,
+  java: `public class Main{public static void main(String[] args){int[] numbers={5,2,8,1,9};int max=numbers[0];for(int i=1;i<numbers.length;i++){if(numbers[i]>max){max=numbers[i];}}System.out.println("Maximum: "+max);}}`
+};
+
 const Beautifier = () => {
   const [inputCode, setInputCode] = useState('');
   const [outputCode, setOutputCode] = useState('');
@@ -20,6 +49,7 @@ const Beautifier = () => {
   const [error, setError] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('auto');
   const [detectedLanguage, setDetectedLanguage] = useState('');
+  const [pasted, setPasted] = useState(false);
 
   // Function to detect language based on code content
   const detectLanguage = (code) => {
@@ -68,36 +98,7 @@ const Beautifier = () => {
         trimmedCode.includes('requests.') ||
         trimmedCode.includes('os.') ||
         trimmedCode.includes('sys.') ||
-        trimmedCode.includes('re.') ||
-        trimmedCode.includes('datetime.') ||
-        trimmedCode.includes('collections.') ||
-        trimmedCode.includes('itertools.') ||
-        trimmedCode.includes('functools.') ||
-        trimmedCode.includes('typing.') ||
-        trimmedCode.includes('pathlib.') ||
-        trimmedCode.includes('argparse.') ||
-        trimmedCode.includes('logging.') ||
-        trimmedCode.includes('unittest.') ||
-        trimmedCode.includes('pytest.') ||
-        trimmedCode.includes('numpy.') ||
-        trimmedCode.includes('pandas.') ||
-        trimmedCode.includes('matplotlib.') ||
-        trimmedCode.includes('seaborn.') ||
-        trimmedCode.includes('scikit-learn') ||
-        trimmedCode.includes('tensorflow.') ||
-        trimmedCode.includes('torch.') ||
-        trimmedCode.includes('flask.') ||
-        trimmedCode.includes('django.') ||
-        trimmedCode.includes('fastapi.') ||
-        trimmedCode.includes('uvicorn.') ||
-        trimmedCode.includes('pydantic.') ||
-        trimmedCode.includes('sqlalchemy.') ||
-        trimmedCode.includes('async def') ||
-        trimmedCode.includes('await ') ||
-        trimmedCode.includes('asyncio.') ||
-        trimmedCode.includes('aiohttp.') ||
-        trimmedCode.includes('async with') ||
-        trimmedCode.includes('async for')) {
+        trimmedCode.includes('re.')) {
       return 'python';
     }
     if (trimmedCode.includes('{') && trimmedCode.includes('}') && 
@@ -130,8 +131,14 @@ const Beautifier = () => {
 
   const handleInputChange = (value) => {
     setInputCode(value);
-    setSelectedLanguage('auto');
-    setDetectedLanguage('');
+    if (value.trim()) {
+      const detected = detectLanguage(value);
+      if (detected !== 'auto') {
+        setDetectedLanguage(detected);
+      }
+    } else {
+      setDetectedLanguage('');
+    }
   };
 
   const handleInputBlur = () => {
@@ -139,26 +146,60 @@ const Beautifier = () => {
       const detected = detectLanguage(inputCode);
       if (detected !== 'auto') {
         setDetectedLanguage(detected);
-        setSelectedLanguage(detected);
       }
     }
   };
 
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setInputCode(text);
+        const detected = detectLanguage(text);
+        if (detected !== 'auto') {
+          setDetectedLanguage(detected);
+        }
+        setPasted(true);
+        setTimeout(() => setPasted(false), 1500);
+      }
+    } catch (e) {
+      // clipboard access fallback
+    }
+  };
+
+  const handleClear = () => {
+    setInputCode('');
+    setOutputCode('');
+    setError('');
+    setDetectedLanguage('');
+  };
+
+  const loadSample = (langKey) => {
+    const key = langKey || (selectedLanguage === 'auto' ? 'js' : selectedLanguage);
+    const sample = sampleCodes[key] || sampleCodes.js;
+    setInputCode(sample);
+    if (selectedLanguage === 'auto') {
+      setDetectedLanguage(key);
+    }
+    setError('');
+  };
+
   const beautifyCode = async () => {
     if (!inputCode.trim()) {
-      setError('Please enter some code to beautify');
+      setError('Please enter or paste some code to beautify.');
       return;
     }
     setLoading(true);
     setError('');
-    setDetectedLanguage('');
     try {
-      // Always use the /api/beautify/ endpoint
       let languageToSend = selectedLanguage;
       if (selectedLanguage === 'auto') {
         languageToSend = detectLanguage(inputCode);
+        if (languageToSend === 'auto') {
+          languageToSend = 'js';
+        }
       }
-      // Map frontend codes to backend expected values
+      
       const langMap = {
         js: 'javascript',
         python: 'python',
@@ -167,123 +208,256 @@ const Beautifier = () => {
         json: 'json',
         java: 'java',
       };
-      languageToSend = langMap[languageToSend] || languageToSend;
+      const apiLang = langMap[languageToSend] || languageToSend;
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
       const endpoint = `${apiUrl}/api/beautify/`;
+      
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code: inputCode, language: languageToSend }),
+        body: JSON.stringify({ code: inputCode, language: apiLang }),
       });
+      
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.detail || 'Failed to beautify code');
+        throw new Error(data.detail || data.error || 'Failed to beautify code');
       }
-      setOutputCode(data.beautified_code);
+      
+      setOutputCode(data.beautified_code || '');
       if (data.language) {
         setDetectedLanguage(data.language);
-        if (selectedLanguage === 'auto') {
-          setSelectedLanguage(data.language);
-        }
-      } else {
-        setDetectedLanguage(selectedLanguage);
       }
     } catch (err) {
-      setError(err.message);
+      // Fallback for JSON formatting locally if API is offline
+      if (selectedLanguage === 'json' || detectLanguage(inputCode) === 'json') {
+        try {
+          const parsed = JSON.parse(inputCode);
+          setOutputCode(JSON.stringify(parsed, null, 2));
+          setError('');
+          return;
+        } catch (e) {}
+      }
+      setError(err.message || 'Error communicating with beautifier service.');
     } finally {
       setLoading(false);
     }
   };
 
-  const getLanguageDisplayName = (langCode) => {
-    const lang = languages.find(l => l.value === langCode);
-    return lang ? lang.label : langCode.toUpperCase();
-  };
+  const currentActiveLang = selectedLanguage === 'auto' 
+    ? (detectedLanguage || 'auto') 
+    : selectedLanguage;
+
+  const linesCount = inputCode ? inputCode.split('\n').length : 0;
+  const charsCount = inputCode.length;
 
   return (
-    <div className="beautifier-page beautifier-fadein-up">
-      <header className="beautifier-header">
-        <h1>Beautifier</h1>
-        <p>Beautify your code with elegant precision</p>
-      </header>
-      <main className="beautifier-main">
-        <div className="language-selector">
-          <label htmlFor="language">Select Language:</label>
-          <select
-            id="language"
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
-          >
-            {languages.map(lang => (
-              <option key={lang.value} value={lang.value}>
-                {lang.label}
-                {detectedLanguage === lang.value && selectedLanguage === 'auto' ? ' (detected)' : ''}
-              </option>
+    <div className="w-full max-w-7xl mx-auto py-6 space-y-8 animate-fadeIn">
+      {/* Header Section */}
+      <div className="text-center space-y-3">
+        <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/20 rounded-full px-4 py-1.5 text-xs font-semibold text-purple-300">
+          <Sparkles size={14} className="text-purple-400" />
+          <span>Multi-Language Code Formatter</span>
+        </div>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white">
+          Code <span className="font-semibold bg-gradient-to-r from-purple-400 via-indigo-300 to-white bg-clip-text text-transparent">Beautifier</span>
+        </h1>
+        <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto font-light">
+          Reformat, align, and beautify messy, minified, or unformatted code with intelligent syntax detection and precision formatting.
+        </p>
+      </div>
+
+      {/* Main Control Toolbar */}
+      <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl flex flex-wrap items-center justify-between gap-4">
+        {/* Left: Language Selector */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
+            <Code2 size={16} className="text-purple-400" />
+            <label htmlFor="language" className="text-xs font-medium text-gray-300">Language:</label>
+            <select
+              id="language"
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="bg-black/60 text-white text-xs rounded-lg px-2.5 py-1.5 border border-white/10 focus:outline-none focus:border-purple-400 transition-colors cursor-pointer"
+            >
+              {languages.map(lang => (
+                <option key={lang.value} value={lang.value} className="bg-gray-900 text-white">
+                  {lang.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {selectedLanguage === 'auto' && detectedLanguage && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+              Detected: {detectedLanguage.toUpperCase()}
+            </span>
+          )}
+        </div>
+
+        {/* Right: Quick actions and Beautify button */}
+        <div className="flex items-center gap-2.5 flex-wrap ml-auto">
+          {/* Sample Presets */}
+          <div className="hidden sm:flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
+            <span className="text-[11px] text-gray-400 px-2 font-medium">Samples:</span>
+            {['js', 'python', 'json', 'html', 'css'].map((langKey) => (
+              <button
+                key={langKey}
+                onClick={() => loadSample(langKey)}
+                className="px-2 py-1 rounded-lg text-[11px] font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors uppercase"
+              >
+                {langKey}
+              </button>
             ))}
-          </select>
-        </div>
-        <div className="button-container">
-          <button 
-            onClick={beautifyCode} 
-            disabled={loading}
-            className="beautify-button"
+          </div>
+
+          {/* Clear Button */}
+          {inputCode && (
+            <button
+              onClick={handleClear}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all duration-200"
+              title="Clear editor"
+            >
+              <Trash2 size={14} />
+              <span>Clear</span>
+            </button>
+          )}
+
+          {/* Main Action Button */}
+          <motion.button
+            onClick={beautifyCode}
+            disabled={loading || !inputCode.trim()}
+            whileHover={{ scale: inputCode.trim() ? 1.02 : 1 }}
+            whileTap={{ scale: inputCode.trim() ? 0.98 : 1 }}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 shadow-lg ${
+              loading || !inputCode.trim()
+                ? 'bg-white/10 text-gray-400 border border-white/5 cursor-not-allowed'
+                : 'bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 text-white shadow-purple-600/30 hover:shadow-purple-600/50 border border-purple-400/30'
+            }`}
           >
-            <i className="fas fa-magic" style={{ marginRight: '0.5rem' }}></i>
-            {loading ? 'Beautifying...' : 'Beautify Code'}
-          </button>
+            {loading ? (
+              <>
+                <RefreshCw size={16} className="animate-spin text-white" />
+                <span>Beautifying...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles size={16} className="text-purple-200" />
+                <span>Beautify Code</span>
+              </>
+            )}
+          </motion.button>
         </div>
-        <div className="code-panels">
-          <div className="code-panel">
-            <h2>Input Code</h2>
+      </div>
+
+      {/* Error Banner */}
+      <AnimatePresence>
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: -10 }}
+            className="flex items-center justify-between p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-300 text-sm"
+          >
+            <div className="flex items-center gap-2.5">
+              <AlertCircle size={18} className="text-rose-400 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+            <button 
+              onClick={() => setError('')} 
+              className="text-rose-400 hover:text-white p-1 rounded-lg transition-colors"
+            >
+              ✕
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Editors Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+        {/* Left: Input Code Panel */}
+        <div className="flex flex-col bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-3.5 transition-all duration-300 hover:border-white/20">
+          <div className="flex items-center justify-between pb-2 border-b border-white/5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse" />
+              <h2 className="text-sm font-semibold text-white tracking-wide">Input Code</h2>
+              {charsCount > 0 && (
+                <span className="text-[11px] text-gray-400 font-mono">
+                  ({linesCount} lines • {charsCount} chars)
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePaste}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10 hover:text-white transition-all duration-200"
+                title="Paste from clipboard"
+              >
+                {pasted ? <Check size={13} className="text-emerald-400" /> : <Clipboard size={13} />}
+                <span>{pasted ? 'Pasted!' : 'Paste'}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 w-full">
             <CodeEditor
               value={inputCode}
               onChange={handleInputChange}
-              language={selectedLanguage === 'auto' ? 'plaintext' : selectedLanguage}
+              language={currentActiveLang}
               onBlur={handleInputBlur}
               onMouseLeave={handleInputBlur}
+              height="480px"
             />
           </div>
-          <div className="code-panel">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-              <h2 style={{ margin: 0 }}>
-                Beautified Code
-                {outputCode && (
-                  <span style={{ fontSize: '0.8rem', color: '#00bcd4', fontWeight: 400, marginLeft: '0.5rem' }}>
-                    ({getLanguageDisplayName(detectedLanguage || selectedLanguage)})
-                  </span>
-                )}
-              </h2>
+        </div>
+
+        {/* Right: Beautified Code Panel */}
+        <div className="flex flex-col bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-3.5 transition-all duration-300 hover:border-white/20">
+          <div className="flex items-center justify-between pb-2 border-b border-white/5">
+            <div className="flex items-center gap-2.5">
+              <div className={`w-2.5 h-2.5 rounded-full ${outputCode ? 'bg-emerald-500' : 'bg-gray-600'}`} />
+              <h2 className="text-sm font-semibold text-white tracking-wide">Beautified Code</h2>
               {outputCode && (
-                <div className="output-actions">
-                  <OutputPanel.Actions code={outputCode} language={detectedLanguage || selectedLanguage} />
-                </div>
+                <span className="text-[11px] text-emerald-400 font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                  Formatted
+                </span>
               )}
             </div>
+
+            {/* Output Panel Actions: Copy & Download */}
+            <OutputPanel.Actions code={outputCode} language={currentActiveLang} />
+          </div>
+
+          <div className="flex-1 w-full">
             <OutputPanel
               code={outputCode}
-              language={detectedLanguage || selectedLanguage}
-              hideActions={true}
+              language={currentActiveLang}
+              height="480px"
             />
           </div>
         </div>
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-      </main>
-      {/* BEGIN: Info Section (from user HTML) */}
-      <div className="beautifier-info-landing">
+      </div>
+
+      {/* Info & Educational Section */}
+      <div className="beautifier-info-landing mt-12 pt-8 border-t border-white/10">
         {/* Hero Section */}
         <div className="beautifier-hero">
-          <h1><span role="img" aria-label="lightbulb">💡</span> <span className="beautifier-gradient-text">Code Beautifier</span></h1>
-          <p>A <strong>code beautifier</strong> is a tool that reformats and cleans up source code to make it more <strong>readable</strong>, <strong>consistent</strong>, and <strong>easier to maintain</strong>. It adjusts indentation, spacing, brackets, line breaks, and other stylistic elements according to standard or custom coding conventions.</p>
+          <h1>
+            <span role="img" aria-label="lightbulb">💡</span> <span className="beautifier-gradient-text">About Code Beautifier</span>
+          </h1>
+          <p>
+            A <strong>code beautifier</strong> is a tool that reformats and cleans up source code to make it more <strong>readable</strong>, <strong>consistent</strong>, and <strong>easier to maintain</strong>. It adjusts indentation, spacing, brackets, line breaks, and other stylistic elements according to standard coding conventions.
+          </p>
         </div>
+
         {/* Languages Supported Section */}
         <div className="beautifier-section">
-          <h2><span role="img" aria-label="wrench">🔧</span> <span className="beautifier-gradient-text">Languages Supported</span></h2>
+          <h2>
+            <Wrench className="text-purple-400" size={24} /> <span className="beautifier-gradient-text">Languages Supported</span>
+          </h2>
           <p>Our Beautifier supports the following programming and markup languages:</p>
           <div className="beautifier-languages-grid">
             <div className="beautifier-language-card">
@@ -315,7 +489,7 @@ const Beautifier = () => {
               <ul>
                 <li>Reformats Java code with standard conventions</li>
                 <li>Properly indents methods, classes, loops, etc.</li>
-                <li>Makes code easier to read and navigate, especially in large projects</li>
+                <li>Makes code easier to read and navigate in large projects</li>
               </ul>
             </div>
             <div className="beautifier-language-card">
@@ -331,120 +505,82 @@ const Beautifier = () => {
               <ul>
                 <li>Re-indents poorly formatted Python code</li>
                 <li>Ensures consistent use of whitespace and blocks</li>
-                <li>Works with functions, classes, lists, dictionaries, etc.</li>
+                <li>Uses PEP 8 and Black conventions</li>
               </ul>
             </div>
           </div>
         </div>
-        {/* History Section */}
-        <div className="beautifier-section">
-          <h2><span role="img" aria-label="history">🕰️</span> <span className="beautifier-gradient-text">A Brief History of Code Beautifiers</span></h2>
-          <p>The concept of beautifying code dates back to the 1960s and 70s with the rise of structured programming. As programming languages evolved, so did the need for automated formatting. Early tools like <strong>PrettyPrinter</strong> for C and <strong>indent</strong> became standard in developer workflows. Today, modern beautifiers support dozens of languages and are integrated into most code editors and web tools — helping developers write cleaner code faster.</p>
-        </div>
-        {/* Advantages Section */}
-        <div className="beautifier-section">
-          <h2><span role="img" aria-label="check">✅</span> <span className="beautifier-gradient-text">Advantages of Using a Beautifier</span></h2>
-          <div className="beautifier-advantages-grid">
-            <div className="beautifier-advantage-item">
-              <strong>🔍 Improves readability and maintainability</strong>
+
+        {/* Advantages & Disadvantages */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+          <div className="beautifier-section m-0">
+            <h2>
+              <CheckCircle2 className="text-emerald-400" size={24} /> <span className="beautifier-gradient-text">Advantages</span>
+            </h2>
+            <div className="space-y-3 mt-4">
+              <div className="beautifier-advantage-item"><strong>🔍 Improves readability and maintainability</strong></div>
+              <div className="beautifier-advantage-item"><strong>🧼 Cleans up minified or copy-pasted code</strong></div>
+              <div className="beautifier-advantage-item"><strong>🤝 Encourages consistent coding standards</strong></div>
+              <div className="beautifier-advantage-item"><strong>🐛 Aids in debugging and spotting logical errors</strong></div>
+              <div className="beautifier-advantage-item"><strong>⏱️ Saves time formatting code manually</strong></div>
             </div>
-            <div className="beautifier-advantage-item">
-              <strong>🧼 Cleans up minified or copy-pasted code</strong>
-            </div>
-            <div className="beautifier-advantage-item">
-              <strong>🤝 Encourages consistent coding standards in teams</strong>
-            </div>
-            <div className="beautifier-advantage-item">
-              <strong>🐛 Aids in debugging and spotting logical errors</strong>
-            </div>
-            <div className="beautifier-advantage-item">
-              <strong>⏱️ Saves time formatting code manually</strong>
+          </div>
+
+          <div className="beautifier-section m-0">
+            <h2>
+              <XCircle className="text-rose-400" size={24} /> <span className="beautifier-gradient-text">Considerations</span>
+            </h2>
+            <div className="space-y-3 mt-4">
+              <div className="beautifier-disadvantage-item"><strong>🚫 May differ from specific personal styling quirks</strong></div>
+              <div className="beautifier-disadvantage-item"><strong>🔁 Formatting entire files may create large git diffs</strong></div>
+              <div className="beautifier-disadvantage-item"><strong>🧠 Always review output for syntax correctness</strong></div>
             </div>
           </div>
         </div>
-        {/* Disadvantages Section */}
-        <div className="beautifier-section">
-          <h2><span role="img" aria-label="cross">❌</span> <span className="beautifier-gradient-text">Disadvantages to Consider</span></h2>
-          <div className="beautifier-advantages-grid">
-            <div className="beautifier-disadvantage-item">
-              <strong>🚫 May not always follow your personal/team styling preference</strong>
-            </div>
-            <div className="beautifier-disadvantage-item">
-              <strong>🔁 Over-formatting may make diffs harder in version control</strong>
-            </div>
-            <div className="beautifier-disadvantage-item">
-              <strong>🧠 Can reduce reliance on writing readable code manually</strong>
-            </div>
-          </div>
-        </div>
+
         {/* How to Use Section */}
         <div className="beautifier-section">
-          <h2><span role="img" aria-label="rocket">🚀</span> <span className="beautifier-gradient-text">How to Use This Beautifier</span></h2>
+          <h2>
+            <Rocket className="text-indigo-400" size={24} /> <span className="beautifier-gradient-text">How to Use This Beautifier</span>
+          </h2>
           <div className="beautifier-steps-container">
             <div className="beautifier-step">
               <div className="beautifier-step-number">1</div>
               <h4>Paste Your Code</h4>
-              <p>Paste your code into the input editor</p>
+              <p>Paste or type your code into the left editor panel</p>
             </div>
             <div className="beautifier-step">
               <div className="beautifier-step-number">2</div>
-              <h4>Auto Detection</h4>
-              <p>The tool will automatically detect the programming language</p>
+              <h4>Select or Auto-Detect</h4>
+              <p>Select your language or let auto-detection identify it</p>
             </div>
             <div className="beautifier-step">
               <div className="beautifier-step-number">3</div>
               <h4>Click Beautify</h4>
-              <p>Click the "Beautify" button to process your code</p>
+              <p>Click "Beautify Code" to format with precision</p>
             </div>
             <div className="beautifier-step">
               <div className="beautifier-step-number">4</div>
-              <h4>Get Results</h4>
-              <p>Your beautified code will be displayed instantly</p>
-            </div>
-            <div className="beautifier-step">
-              <div className="beautifier-step-number">5</div>
               <h4>Copy or Download</h4>
-              <p>📋 Copy to clipboard or 💾 Download as a file</p>
-            </div>
-          </div>
-          <div style={{marginTop: '30px', padding: '20px', background: 'rgba(102, 126, 234, 0.1)', borderRadius: '10px', borderLeft: '4px solid #667eea'}}>
-            <strong>💡 Tip:</strong> File is downloaded in the correct extension based on the detected programming language.
-          </div>
-        </div>
-        {/* Advanced Tips Section */}
-        <div className="beautifier-section">
-          <h2><span role="img" aria-label="brain">🧠</span> <span className="beautifier-gradient-text">Advanced Tips for Power Users</span></h2>
-          <div className="beautifier-tips-list">
-            <div className="beautifier-tip-item">
-              <strong>🪄 Use this tool as a quick pre-commit formatter before pushing to Git</strong>
-            </div>
-            <div className="beautifier-tip-item">
-              <strong>🔎 Combine with a linter to detect code issues along with beautifying</strong>
-            </div>
-            <div className="beautifier-tip-item">
-              <strong>🔁 You can re-beautify multiple times to test different formatting outcomes</strong>
-            </div>
-            <div className="beautifier-tip-item">
-              <strong>📄 Save the beautified code locally or copy it directly into your IDE</strong>
-            </div>
-            <div className="beautifier-tip-item">
-              <strong>⚙️ Future updates may include custom styling options and real-time formatting</strong>
+              <p>Copy formatted code or download with matching extension</p>
             </div>
           </div>
         </div>
-        {/* Call to Action Section */}
+
+        {/* CTA */}
         <div className="beautifier-cta-section">
-          <h2><span role="img" aria-label="megaphone">📣</span> <span className="beautifier-gradient-text">Ready to Beautify Your Code?</span></h2>
-          <p>Try it now! Paste your messy or unformatted code in the editor above and hit <strong>Beautify</strong>. Experience the power of clean, readable, and professional code in seconds.</p>
-          <button className="beautifier-cta-button" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>Start Beautifying Now</button>
-          <div style={{marginTop: '30px'}}>
-            <h3 className="beautifier-gradient-text">✨ Beautify. Copy. Download. Deliver.</h3>
-          </div>
+          <h2><span className="beautifier-gradient-text">Ready to Beautify Your Code?</span></h2>
+          <p>Paste your messy code above and hit <strong>Beautify Code</strong>. Experience clean, readable, and professional code in seconds.</p>
+          <button 
+            className="beautifier-cta-button" 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            Start Beautifying Now
+          </button>
         </div>
       </div>
-      {/* END: Info Section */}
     </div>
   );
 };
 
-export default Beautifier; 
+export default Beautifier;
