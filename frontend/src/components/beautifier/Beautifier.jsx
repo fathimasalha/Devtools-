@@ -51,81 +51,103 @@ const Beautifier = () => {
   const [detectedLanguage, setDetectedLanguage] = useState('');
   const [pasted, setPasted] = useState(false);
 
-  // Function to detect language based on code content
+  // Enhanced function to detect language based on code content
   const detectLanguage = (code) => {
-    if (!code.trim()) return 'auto';
-    const trimmedCode = code.trim();
-    if (trimmedCode.startsWith('{') && trimmedCode.endsWith('}')) {
+    if (!code || !code.trim()) return 'auto';
+    const trimmed = code.trim();
+
+    // 1. JSON Detection (valid JSON object or array)
+    if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
       try {
-        JSON.parse(trimmedCode);
+        JSON.parse(trimmed);
         return 'json';
       } catch (e) {}
     }
-    if (trimmedCode.includes('<html') || 
-        trimmedCode.includes('<!DOCTYPE') || 
-        trimmedCode.includes('<head') || 
-        trimmedCode.includes('<body') ||
-        (trimmedCode.includes('<') && trimmedCode.includes('>') && trimmedCode.includes('</'))) {
+
+    // 2. HTML Detection (tags, doctype, structure)
+    if (
+      trimmed.toLowerCase().includes('<!doctype') ||
+      trimmed.toLowerCase().includes('<html') ||
+      trimmed.toLowerCase().includes('<head') ||
+      trimmed.toLowerCase().includes('<body') ||
+      /<\/?[a-z][\s\S]*>/i.test(trimmed) ||
+      (trimmed.startsWith('<') && (trimmed.includes('class=') || trimmed.includes('id=') || trimmed.includes('src=') || trimmed.includes('href=')))
+    ) {
       return 'html';
     }
-    if (trimmedCode.includes('public class') || 
-        trimmedCode.includes('public static void main') ||
-        trimmedCode.includes('import java.') ||
-        trimmedCode.includes('System.out.println') ||
-        trimmedCode.includes('String[] args')) {
+
+    // 3. Java Detection
+    if (
+      trimmed.includes('public class') ||
+      trimmed.includes('private class') ||
+      trimmed.includes('public static void main') ||
+      trimmed.includes('System.out.println') ||
+      trimmed.includes('System.out.print') ||
+      trimmed.includes('String[] args') ||
+      trimmed.includes('import java.') ||
+      trimmed.includes('package ') ||
+      /@Override\b/.test(trimmed)
+    ) {
       return 'java';
     }
-    if (trimmedCode.includes('def ') || 
-        trimmedCode.includes('class ') ||
-        trimmedCode.includes('import ') ||
-        trimmedCode.includes('from ') ||
-        trimmedCode.includes('print(') ||
-        trimmedCode.includes('if __name__') ||
-        trimmedCode.includes('elif ') ||
-        trimmedCode.includes('except ') ||
-        trimmedCode.includes('finally:') ||
-        trimmedCode.includes('with ') ||
-        trimmedCode.includes('for ') ||
-        trimmedCode.includes('while ') ||
-        trimmedCode.includes('try:') ||
-        trimmedCode.includes('raise ') ||
-        trimmedCode.includes('assert ') ||
-        trimmedCode.includes('lambda ') ||
-        trimmedCode.includes('self.') ||
-        trimmedCode.includes('super(') ||
-        trimmedCode.includes('open(') ||
-        trimmedCode.includes('json.') ||
-        trimmedCode.includes('requests.') ||
-        trimmedCode.includes('os.') ||
-        trimmedCode.includes('sys.') ||
-        trimmedCode.includes('re.')) {
+
+    // 4. Python Detection
+    if (
+      /\bdef\s+\w+\s*\(/.test(trimmed) ||
+      /\bclass\s+\w+(\(.*\))?\s*:/.test(trimmed) ||
+      /\bimport\s+[a-zA-Z0-9_]+/.test(trimmed) ||
+      /\bfrom\s+[a-zA-Z0-9_]+\s+import/.test(trimmed) ||
+      /\bprint\s*\(/.test(trimmed) ||
+      /\belif\s+/.test(trimmed) ||
+      /\bexcept(\s+\w+)?:/.test(trimmed) ||
+      /\bfinally:/.test(trimmed) ||
+      /\bwith\s+open\(/.test(trimmed) ||
+      trimmed.includes('if __name__ == "__main__":') ||
+      trimmed.includes("if __name__ == '__main__':") ||
+      /\blambda\s+/.test(trimmed) ||
+      /\bself\.\w+/.test(trimmed) ||
+      trimmed.includes('None') ||
+      trimmed.includes('True') ||
+      trimmed.includes('False')
+    ) {
       return 'python';
     }
-    if (trimmedCode.includes('{') && trimmedCode.includes('}') && 
-        (trimmedCode.includes(':') || trimmedCode.includes(';')) &&
-        !trimmedCode.includes('function') && 
-        !trimmedCode.includes('var ') && 
-        !trimmedCode.includes('let ') && 
-        !trimmedCode.includes('const ') &&
-        !trimmedCode.includes('console.log') &&
-        !trimmedCode.includes('if(') &&
-        !trimmedCode.includes('for(') &&
-        !trimmedCode.includes('while(')) {
+
+    // 5. CSS Detection
+    if (
+      /[.#][\w-]+\s*\{[^}]*\}/.test(trimmed) ||
+      /@media\b/.test(trimmed) ||
+      /@keyframes\b/.test(trimmed) ||
+      (trimmed.includes('{') && trimmed.includes('}') && (
+        trimmed.includes('color:') ||
+        trimmed.includes('background:') ||
+        trimmed.includes('margin:') ||
+        trimmed.includes('padding:') ||
+        trimmed.includes('display:') ||
+        trimmed.includes('font-size:') ||
+        trimmed.includes('border:') ||
+        trimmed.includes('width:') ||
+        trimmed.includes('height:')
+      ))
+    ) {
       return 'css';
     }
-    if (trimmedCode.includes('function') || 
-        trimmedCode.includes('var ') || 
-        trimmedCode.includes('let ') || 
-        trimmedCode.includes('const ') ||
-        trimmedCode.includes('console.log') ||
-        trimmedCode.includes('if(') ||
-        trimmedCode.includes('for(') ||
-        trimmedCode.includes('while(') ||
-        trimmedCode.includes('=>') ||
-        trimmedCode.includes('()') ||
-        trimmedCode.includes('{}')) {
+
+    // 6. JavaScript / TypeScript Detection
+    if (
+      /\bfunction\s*\w*\s*\(/.test(trimmed) ||
+      /\b(const|let|var)\s+\w+\s*=/.test(trimmed) ||
+      /\bconsole\.(log|error|warn|info)\(/.test(trimmed) ||
+      /=>\s*\{?/.test(trimmed) ||
+      /\bdocument\.(getElementById|querySelector|addEventListener)\b/.test(trimmed) ||
+      /\bwindow\.\w+/.test(trimmed) ||
+      /\bexport\s+(default|const|let|var|function)\b/.test(trimmed) ||
+      /\brequire\s*\(/.test(trimmed) ||
+      /\bimport\s+.*\s+from\s+['"]/.test(trimmed)
+    ) {
       return 'js';
     }
+
     return 'auto';
   };
 
@@ -281,11 +303,23 @@ const Beautifier = () => {
               onChange={(e) => setSelectedLanguage(e.target.value)}
               className="bg-black/60 text-white text-xs rounded-lg px-2.5 py-1.5 border border-white/10 focus:outline-none focus:border-purple-400 transition-colors cursor-pointer"
             >
-              {languages.map(lang => (
-                <option key={lang.value} value={lang.value} className="bg-gray-900 text-white">
-                  {lang.label}
-                </option>
-              ))}
+              {languages.map((lang) => {
+                let displayLabel = lang.label;
+                if (lang.value === 'auto') {
+                  if (detectedLanguage) {
+                    const detectedObj = languages.find((l) => l.value === detectedLanguage);
+                    const name = detectedObj ? detectedObj.label : detectedLanguage.toUpperCase();
+                    displayLabel = `Auto Detect (${name})`;
+                  } else {
+                    displayLabel = 'Auto Detect';
+                  }
+                }
+                return (
+                  <option key={lang.value} value={lang.value} className="bg-gray-900 text-white">
+                    {displayLabel}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
