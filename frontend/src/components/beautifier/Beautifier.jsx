@@ -302,7 +302,7 @@ const Beautifier = () => {
   return (
     <div className="w-full max-w-7xl mx-auto py-6 space-y-8 animate-fadeIn">
       {/* Header Section */}
-      <div className="text-center space-y-3">
+      <div className="text-center space-y-3 pt-4 sm:pt-6 md:pt-4">
         <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/20 rounded-full px-4 py-1.5 text-xs font-semibold text-purple-300">
           <Sparkles size={14} className="text-purple-400" />
           <span>Multi-Language Code Formatter</span>
