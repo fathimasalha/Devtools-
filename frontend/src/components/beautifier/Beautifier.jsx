@@ -322,13 +322,6 @@ const Beautifier = () => {
               })}
             </select>
           </div>
-
-          {selectedLanguage === 'auto' && detectedLanguage && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
-              Detected: {detectedLanguage.toUpperCase()}
-            </span>
-          )}
         </div>
 
         {/* Right: Quick actions and Beautify button */}
