@@ -9,7 +9,7 @@ import hpLogo from "./logos/hp.png";
 import jioLogo from "./logos/jio.png";
 import nayaraLogo from "./logos/nayara.png";
 import essarLogo from "./logos/essar.png";
-import {  Download as DownloadIcon, FileDown } from 'lucide-react';
+import { Download as DownloadIcon } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { motion } from 'framer-motion';
@@ -35,23 +35,6 @@ const initialForm = {
   phoneNumber: "",
   notes: "",
 };
-
-const sampleForm = {
-  companyName: "Sample Fuel Station Pvt Ltd",
-  address: "123 Main Road, City, State, 123456",
-  customerName: "John Doe",
-  vehicleNumber: "MH12AB1234",
-  fuelType: "Petrol",
-  pricePerLiter: "105.50",
-  quantity: "10.00",
-  date: "2024-06-24",
-  time: "12:34",
-  billNumber: "FB-123456",
-  gstNumber: "27ABCDE1234F1Z5",
-  phoneNumber: "9876543210",
-  notes: "Thank you for your visit!",
-};
-const sampleTotal = 1055.0;
 
 function generateBillNumber() {
   return `FB-${Date.now().toString().slice(-6)}`;

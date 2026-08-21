@@ -186,7 +186,7 @@ const FindMyIP = () => {
               <tr><td>Header complexity</td><td>Simple</td><td>Simplified yet extensible</td></tr>
               <tr><td>Auto-configuration</td><td>Optional (DHCP)</td><td>Built-in (Stateless Address Autoconfig)</td></tr>
               <tr><td>Invented / Standard</td><td>Early 1970s, RFC 791 (1981)</td><td>Late 1990s, RFC 2460 (1998)</td></tr>
-              <tr><td>Example</td><td><a href="#" className="blue">203.0.113.45</a></td><td><a href="#" className="blue">2401:db00:2110:3001:face:b00c:0:1</a></td></tr>
+              <tr><td>Example</td><td><span className="blue">203.0.113.45</span></td><td><span className="blue">2401:db00:2110:3001:face:b00c:0:1</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -237,7 +237,7 @@ const FindMyIP = () => {
               <tr><td>Change frequency</td><td>Rarely (remains constant)</td><td>Can change on reboot or lease renewal</td></tr>
               <tr><td>Use cases</td><td>Web servers, VPN endpoints, VOIP systems</td><td>Residential internet, mobile devices</td></tr>
               <tr><td>Cost</td><td>Often higher (ISP fee for static)</td><td>Usually included in standard service plans</td></tr>
-              <tr><td>Example</td><td><a href="#" className="blue">198.51.100.35 (static website hosting)</a></td><td><a href="#" className="blue">198.51.100.102 today, 198.51.100.117 tomorrow</a></td></tr>
+              <tr><td>Example</td><td><span className="blue">198.51.100.35 (static website hosting)</span></td><td><span className="blue">198.51.100.102 today, 198.51.100.117 tomorrow</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -246,7 +246,7 @@ const FindMyIP = () => {
             <span className="wmiip-card-icon">🔢</span>
             <h3>6. Decoding the "Dots" in an IPv4 Address</h3>
           </div>
-          <p>An IPv4 address like <a href="#" className="blue">192.168.1.10</a> has four octets separated by dots:</p>
+          <p>An IPv4 address like <span className="blue">192.168.1.10</span> has four octets separated by dots:</p>
           <ul>
             <li><span className="blue">Octet 1 (192):</span> Network portion</li>
             <li><span className="blue">Octet 2 (168):</span> Sub-network portion</li>
@@ -275,7 +275,7 @@ const FindMyIP = () => {
             <li>Proxy relays data back to your browser</li>
           </ol>
           <div className="bold">Example:</div>
-          <p>Using a U.S. proxy at <a href="#" className="blue">34.203.129.235</a> makes it appear you're browsing from New York even if you're in Mumbai.</p>
+          <p>Using a U.S. proxy at <span className="blue">34.203.129.235</span> makes it appear you're browsing from New York even if you're in Mumbai.</p>
         </div>
         <div className="wmiip-dark-card">
           <div className="wmiip-card-heading-row">

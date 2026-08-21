@@ -1,14 +1,6 @@
 import React from 'react';
 import './RentReceipt.css';
 
-function numberToWords(num) {
-  // Simple number to words for demo
-  if (!num) return '';
-  const n = parseInt(num, 10);
-  if (isNaN(n)) return '';
-  return n.toLocaleString('en-IN') + ' Rupees';
-}
-
 const handwritingStyle = { fontFamily: "'Caveat', 'Pacifico', 'Dancing Script', cursive", color: '#1e40af', fontWeight: 700, fontSize: '1.3em' };
 
 const ReceiptPreview = ({ form, template = 1 }) => {

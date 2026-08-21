@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Wifi, Code, Menu, X, ArrowRight, ArrowDown, ArrowLeft, Star, AlignLeft, Sparkles, QrCode, Flame, FileText, MoreHorizontal, Wrench } from 'lucide-react';
-import axios from 'axios';
+import { Wifi, Code, Menu, X, Star, AlignLeft, Sparkles, QrCode, Flame, FileText, MoreHorizontal, Wrench } from 'lucide-react';
 import FindMyIP from './components/findmyip/FindMyIP';
 import Beautifier from './components/beautifier/Beautifier';
 import WordCount from './components/wordcount/WordCount';
@@ -11,12 +10,6 @@ import FuelBillGenerator from './components/fuelbill/FuelBillGenerator';
 import RentReceiptPage from './components/rentreceipt/RentReceiptPage';
 import GarageBillPage from './components/garagebill/GarageBillPage';
 import './App.css';
-
-
-// API base URL
-const API_BASE_URL = process.env.REACT_APP_API_URL 
-  ? `${process.env.REACT_APP_API_URL}/api` 
-  : 'http://localhost:8000/api';
 
 // ScrollToTop component
 function ScrollToTop() {
@@ -62,7 +55,6 @@ const MoreDropdown = () => {
 
 const App = () => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [showMore, setShowMore] = useState(false);
   return (
     <Router>
       <ScrollToTop />
