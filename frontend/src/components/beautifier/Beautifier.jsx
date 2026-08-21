@@ -168,7 +168,8 @@ const Beautifier = () => {
         java: 'java',
       };
       languageToSend = langMap[languageToSend] || languageToSend;
-      const endpoint = 'http://localhost:8000/api/beautify/';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const endpoint = `${apiUrl}/api/beautify/`;
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {

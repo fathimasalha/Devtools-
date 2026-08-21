@@ -16,7 +16,8 @@ const FindMyIP = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get('http://localhost:8000/api/ipinfo/');
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+        const response = await axios.get(`${apiUrl}/api/ipinfo/`);
         setIpInfo(response.data);
       } catch (err) {
         setError('Failed to fetch IP information. Please try again later.');
