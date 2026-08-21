@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wifi, Code, Menu, X, Star, AlignLeft, Sparkles, QrCode, Flame, FileText, MoreHorizontal, Wrench } from 'lucide-react';
+import { Wifi, Code, Menu, X, Star, AlignLeft, Sparkles, QrCode, Flame, FileText, MoreHorizontal, Wrench, ArrowRight, ArrowLeft } from 'lucide-react';
 import FindMyIP from './components/findmyip/FindMyIP';
 import Beautifier from './components/beautifier/Beautifier';
 import WordCount from './components/wordcount/WordCount';
