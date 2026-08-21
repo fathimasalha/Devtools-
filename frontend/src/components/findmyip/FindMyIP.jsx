@@ -11,20 +11,132 @@ const FindMyIP = () => {
   const [error, setError] = useState(null);
   const [mapError, setMapError] = useState(false);
 
-  useEffect(() => {
-    const fetchIpInfo = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-        const response = await axios.get(`${apiUrl}/api/ipinfo/`);
-        setIpInfo(response.data);
-      } catch (err) {
-        setError('Failed to fetch IP information. Please try again later.');
-      } finally {
-        setLoading(false);
+  const fetchIpInfo = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      let data = null;
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+      // 1. If backend API URL is configured or in local development with backend
+      if (apiUrl || isLocalhost) {
+        try {
+          const endpoint = apiUrl ? `${apiUrl}/api/ipinfo/` : 'http://localhost:8000/api/ipinfo/';
+          const response = await axios.get(endpoint, { timeout: 4000 });
+          if (response.data && response.data.ip) {
+            data = response.data;
+          }
+        } catch (apiErr) {
+          console.warn('Backend IP API not reachable, falling back to direct lookup:', apiErr.message);
+        }
       }
-    };
+
+      // 2. Direct HTTPS client-side lookup fallback (guarantees production Netlify works seamlessly)
+      if (!data) {
+        // Try Provider 1: ipwho.is (Free, HTTPS, CORS enabled, no API key required)
+        try {
+          const res = await axios.get('https://ipwho.is/', { timeout: 6000 });
+          if (res.data && res.data.success !== false && res.data.ip) {
+            const d = res.data;
+            data = {
+              ip: d.ip,
+              ipv6: d.type === 'IPv6' ? d.ip : null,
+              city: d.city || 'Unknown',
+              region: d.region || 'Unknown',
+              country: d.country || 'Unknown',
+              isp: d.connection?.isp || d.connection?.org || 'Unknown',
+              org: d.connection?.org || d.connection?.isp || 'Unknown',
+              asn: d.connection?.asn ? `AS${d.connection.asn}` : 'Unknown',
+              timezone: d.timezone?.id || d.timezone?.utc || 'Unknown',
+              latitude: d.latitude || null,
+              longitude: d.longitude || null,
+              postal: d.postal || 'Unknown',
+            };
+          }
+        } catch (e1) {
+          console.warn('ipwho.is failed, trying fallback:', e1.message);
+        }
+
+        // Try Provider 2: freeipapi.com
+        if (!data) {
+          try {
+            const res = await axios.get('https://freeipapi.com/api/json', { timeout: 6000 });
+            if (res.data && res.data.ipAddress) {
+              const d = res.data;
+              data = {
+                ip: d.ipAddress,
+                ipv6: d.ipVersion === 6 ? d.ipAddress : null,
+                city: d.cityName || 'Unknown',
+                region: d.regionName || 'Unknown',
+                country: d.countryName || 'Unknown',
+                isp: 'Unknown',
+                org: 'Unknown',
+                asn: 'Unknown',
+                timezone: d.timeZone || 'Unknown',
+                latitude: d.latitude || null,
+                longitude: d.longitude || null,
+                postal: d.zipCode || 'Unknown',
+              };
+            }
+          } catch (e2) {
+            console.warn('freeipapi.com failed, trying fallback:', e2.message);
+          }
+        }
+
+        // Try Provider 3: ipapi.co
+        if (!data) {
+          try {
+            const res = await axios.get('https://ipapi.co/json/', { timeout: 6000 });
+            if (res.data && res.data.ip) {
+              const d = res.data;
+              data = {
+                ip: d.ip,
+                ipv6: d.version === 'IPv6' ? d.ip : null,
+                city: d.city || 'Unknown',
+                region: d.region || 'Unknown',
+                country: d.country_name || 'Unknown',
+                isp: d.org || 'Unknown',
+                org: d.org || 'Unknown',
+                asn: d.asn || 'Unknown',
+                timezone: d.timezone || 'Unknown',
+                latitude: d.latitude || null,
+                longitude: d.longitude || null,
+                postal: d.postal || 'Unknown',
+              };
+            }
+          } catch (e3) {
+            console.warn('ipapi.co failed:', e3.message);
+          }
+        }
+      }
+
+      if (!data) {
+        throw new Error('Failed to retrieve IP information from available providers.');
+      }
+
+      // Check for IPv6 if not already detected (non-blocking best-effort)
+      if (!data.ipv6) {
+        try {
+          const v6Res = await axios.get('https://api6.ipify.org?format=json', { timeout: 2000 });
+          if (v6Res.data && v6Res.data.ip && v6Res.data.ip.includes(':')) {
+            data.ipv6 = v6Res.data.ip;
+          }
+        } catch (v6Err) {
+          // User's network is IPv4-only, ignore
+        }
+      }
+
+      setIpInfo(data);
+    } catch (err) {
+      setError('Failed to fetch IP information. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchIpInfo();
   }, []);
 
@@ -47,7 +159,7 @@ const FindMyIP = () => {
         <div className="findmyip-error"><i className="fas fa-exclamation-triangle mr-2" />{error}</div>
         <button
           className="findmyip-card-refresh"
-          onClick={() => window.location.reload()}
+          onClick={fetchIpInfo}
         >
           <i className="fas fa-sync-alt mr-2" />Retry
         </button>
@@ -73,7 +185,7 @@ const FindMyIP = () => {
             <h3 className="findmyip-card-title">IP Information</h3>
             <button
               className="findmyip-card-refresh"
-              onClick={() => window.location.reload()}
+              onClick={fetchIpInfo}
               title="Refresh"
             >
               <i className="fas fa-sync-alt" />
