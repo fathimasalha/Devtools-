@@ -10,12 +10,9 @@ import {
   Check, 
   AlertCircle, 
   Wrench, 
-  Clock, 
   CheckCircle2, 
   XCircle, 
   Rocket, 
-  Lightbulb, 
-  FileCode2,
   RefreshCw
 } from 'lucide-react';
 import './Beautifier.css';
