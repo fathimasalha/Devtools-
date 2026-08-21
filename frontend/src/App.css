@@ -1,0 +1,54 @@
+.homepage-bg {
+  position: absolute;
+  width: 24rem;
+  height: 24rem;
+  left: 10%;
+  top: 20%;
+  background: linear-gradient(to right, #3b82f6 0%, #a21caf 100%);
+  border-radius: 9999px;
+  filter: blur(48px);
+  opacity: 0.18;
+  z-index: 0;
+}
+.homepage-bg2 {
+  position: absolute;
+  width: 16rem;
+  height: 16rem;
+  right: 10%;
+  bottom: 20%;
+  background: linear-gradient(to right, #a21caf 0%, #ec4899 100%);
+  border-radius: 9999px;
+  filter: blur(48px);
+  opacity: 0.18;
+  z-index: 0;
+}
+.premium-badge {
+  z-index: 20;
+  position: relative;
+}
+
+.show-more-btn {
+  font-size: 1rem;
+  transition: font-size 0.2s;
+}
+@media (max-width: 600px) {
+  .premium-badge {
+    font-size: 0.55rem !important;
+    padding: 0.3rem 0.8rem !important;
+    margin-top: 5rem;
+  }
+  .show-more-btn {
+    font-size: 0.8rem !important;
+    padding: 0.2rem 0.7rem !important;
+  }
+  .mobile-bill-tools-header {
+    text-align: center;
+    width: 100%;
+    display: block;
+  }
+}
+@media (min-width: 601px) and (max-width: 1024px) {
+  .premium-badge {
+    margin-top: 3.5rem !important;
+  }
+} 

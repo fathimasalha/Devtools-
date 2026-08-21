@@ -1,0 +1,397 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.font-inter {
+  font-family: 'Inter', 'Roboto', Arial, sans-serif;
+}
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadein {
+  animation: fadein 0.7s cubic-bezier(0.4,0,0.2,1) both;
+}
+
+@keyframes fadein-slow {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadein-slow {
+  animation: fadein-slow 1.2s cubic-bezier(0.4,0,0.2,1) both;
+}
+
+@keyframes stat-bounce {
+  0% { transform: translateY(0) scale(1); box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10); }
+  30% { transform: translateY(-8px) scale(1.06); box-shadow: 0 8px 24px 0 rgba(102,126,234,0.18); }
+  50% { transform: translateY(0) scale(1.03); box-shadow: 0 4px 16px 0 rgba(102,126,234,0.12); }
+  70% { transform: translateY(-4px) scale(1.04); box-shadow: 0 6px 20px 0 rgba(102,126,234,0.15); }
+  100% { transform: translateY(0) scale(1); box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10); }
+}
+
+.stat-bounce-hover {
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), box-shadow 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.stat-bounce-hover:hover, .stat-bounce-hover:focus {
+  animation: stat-bounce 0.7s cubic-bezier(0.4,0,0.2,1);
+  outline: none;
+  box-shadow: 0 0 0 4px #6366f1aa, 0 8px 32px 0 rgba(102,126,234,0.18);
+  z-index: 2;
+}
+
+@keyframes fadein-up {
+  from { opacity: 0; transform: translateY(40px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-fadein-up {
+  animation: fadein-up 0.8s cubic-bezier(0.4,0,0.2,1) both;
+}
+
+@keyframes icon-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 #6366f1); }
+  50% { filter: drop-shadow(0 0 8px #6366f1); }
+}
+
+.icon-pulse:hover, .icon-pulse:focus {
+  animation: icon-pulse 1s infinite;
+}
+
+/* Minimalist tweaks for WordlyCount */
+.wordlycount-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #18181b 0%, #000 100%);
+  padding: 2rem 0.5rem;
+}
+
+.wordlycount-card {
+  width: 100%;
+  max-width: 700px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.wordlycount-textarea {
+  width: 100%;
+  min-height: 120px;
+  max-height: 400px;
+  resize: none;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  font-size: 1.1rem;
+  border-radius: 1rem;
+  padding: 1rem;
+  outline: none;
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10) inset;
+  transition: border 0.2s;
+}
+.wordlycount-textarea:focus {
+  border-color: #60a5fa;
+}
+
+.wordlycount-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+@media (min-width: 768px) {
+  .wordlycount-stats {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+}
+
+.wordlycount-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .wordlycount-stat-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.wordlycount-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0,0,0,0.4);
+  border-radius: 0.7rem;
+  padding: 0.8rem;
+  min-width: 80px;
+  transition: background 0.2s;
+}
+.wordlycount-stat:hover {
+  background: rgba(0,0,0,0.6);
+}
+
+.wordlycount-stat-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+}
+.wordlycount-stat-label {
+  font-size: 0.8rem;
+  color: #a3a3a3;
+  margin-top: 0.3rem;
+} 
+
+.wordlycount-info-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 40px 20px;
+  margin-top: 40px;
+}
+@media (max-width: 768px) {
+  .wordlycount-info-section {
+    margin-top: 20px;
+  }
+}
+.section {
+  background: #1a1a1a;
+  border: 1px solid #333333;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease;
+}
+.section:hover {
+  transform: translateY(-3px);
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.section-icon {
+  font-size: 2.5em;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+.section-title {
+  font-size: 2.2em;
+  font-weight: 700;
+  color: #ffffff;
+}
+.intro-text {
+  font-size: 1.2em;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+.highlight {
+  background: #333333;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #ffffff;
+}
+.feature-list {
+  list-style: none;
+  padding: 0;
+}
+.feature-item {
+  background: #0a0a0a;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #666666;
+  transition: transform 0.3s ease;
+  color: #ffffff;
+}
+.feature-item:hover {
+  transform: translateX(10px);
+}
+.feature-name {
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 5px;
+}
+.steps-list {
+  counter-reset: step-counter;
+  list-style: none;
+  padding: 0;
+}
+.step-item {
+  counter-increment: step-counter;
+  background: #0a0a0a;
+  margin: 15px 0;
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+  border: 1px solid #333333;
+  transition: transform 0.3s ease;
+  color: #ffffff;
+}
+.step-item:hover {
+  transform: translateX(5px);
+}
+.step-item::before {
+  content: counter(step-counter);
+  position: absolute;
+  left: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #666666;
+  color: #ffffff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+.step-item ul {
+  margin-top: 10px;
+  padding-left: 20px;
+  color: #ffffff;
+}
+.step-item li {
+  margin: 5px 0;
+  color: #ffffff;
+}
+.audience-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+.audience-card {
+  background: #0a0a0a;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #333333;
+  transition: transform 0.3s ease;
+  color: #ffffff;
+}
+.audience-card:hover {
+  transform: translateY(-5px);
+}
+.audience-title {
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+}
+.tips-list {
+  list-style: none;
+  padding: 0;
+}
+.tip-item {
+  background: #0a0a0a;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #666666;
+  transition: transform 0.3s ease;
+  color: #ffffff;
+}
+.tip-item:hover {
+  transform: translateX(10px);
+}
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+.benefit-card {
+  background: #0a0a0a;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  border: 1px solid #333333;
+  transition: transform 0.3s ease;
+  color: #ffffff;
+}
+.benefit-card:hover {
+  transform: scale(1.05);
+}
+.benefit-icon {
+  font-size: 2em;
+  margin-bottom: 10px;
+  display: block;
+}
+.benefit-title {
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+.cta-content {
+  text-align: center;
+  padding: 20px;
+  color: #ffffff;
+}
+.cta-text {
+  font-size: 1.3em;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+.cta-tagline {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 20px;
+}
+@media (max-width: 768px) {
+  .section {
+    padding: 20px;
+  }
+  .section-title {
+    font-size: 1.8em;
+  }
+  .benefits-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+} 
+
+.wordlycount-info-section .section-title,
+.wordlycount-info-section .wordlycount-info-title {
+  font-size: 1.6em;
+}
+.wordlycount-info-section .wordlycount-info-title::after {
+  width: 28px;
+  height: 3px;
+}
+@media (max-width: 600px) {
+  .wordlycount-info-section .section-title,
+  .wordlycount-info-section .wordlycount-info-title {
+    font-size: 1em;
+  }
+  .wordlycount-info-section .wordlycount-info-title::after {
+    width: 18px;
+    height: 2px;
+  }
+  .cta-tagline {
+    font-size: 1.1em;
+  }
+} 
+
+.wordlycount-info-section, .wordlycount-info-section * {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+} 
+
+@media (max-width: 600px) {
+  .wordlycount-container {
+    padding-top: 3rem;
+    margin-top: 1.5rem;
+  }
+  .cta-tagline {
+    font-size: 1.1em;
+  }
+} 

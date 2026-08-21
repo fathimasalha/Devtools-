@@ -1,0 +1,348 @@
+/* FuelBillGenerator.css */
+
+.input.input-bordered {
+  @apply border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400;
+  color: #111;
+  background-color: #fff;
+}
+
+.btn-template.active {
+  @apply bg-green-600 text-white border-green-600;
+}
+
+.fuel-bill-generator-container {
+  background-color: #111 !important;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.bill-receipt {
+  border: 2px dashed #bbb;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+  box-shadow: 0 2px 8px 0 #e5e7eb;
+  color: #222;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .bill-receipt, .bill-receipt * {
+    visibility: visible;
+  }
+  .bill-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    box-shadow: none;
+  }
+}
+
+label {
+  color: #222;
+  font-weight: 500;
+} 
+
+.fuelbill-info-section {
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+.fuelbill-info-section .container {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+}
+@media (max-width: 768px) {
+  .fuelbill-info-section .container {
+    padding: 12px 4px;
+  }
+}
+.fuelbill-info-section .header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border-radius: 15px;
+  border: 1px solid #333;
+}
+.fuelbill-text {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  background: #ffff;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.fuelbill-info-section .header p {
+  font-size: 1.1em;
+  color: #fff;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.fuelbill-info-section .features {
+  background: #1a1a1a;
+  border-radius: 15px;
+  padding: 30px;
+  border: 1px solid #333;
+  margin-bottom: 30px;
+}
+.fuelbill-info-section .features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+.fuelbill-info-section .feature-item {
+  background: #2d2d2d;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #444;
+  color: #fff;
+}
+.fuelbill-info-section .feature-item h3 {
+  color: #ffff;
+  margin-bottom: 10px;
+}
+.fuelbill-info-section .instructions {
+  background: #1a1a1a;
+  border-radius: 15px;
+  padding: 30px;
+  border: 1px solid #333;
+  color: #fff;
+}
+.fuelbill-info-section .instructions ol {
+  margin-left: 20px;
+}
+.fuelbill-info-section .instructions li {
+  margin-bottom: 10px;
+  color: #fff;
+}
+@media (max-width: 768px) {
+  .fuelbill-info-section .features-grid {
+    grid-template-columns: 1fr;
+  }
+} 
+
+.fuelbill-info-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.fuelbill-info-icon {
+  font-size: 2.5rem; /* Match this to your heading's font-size */
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.fuelbill-info-title-gradient {
+  /* Your existing gradient/text styles for the heading */
+  font-size: 2.5rem; /* Ensure this matches the icon size */
+} 
+
+.fuelbill-extra-info-section {
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+.fuelbill-extra-info-section .container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 28px 20px 32px 20px;
+  background: none;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+.fuelbill-extra-title {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin-top: 24px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: #fff;
+}
+.fuelbill-extra-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 18px;
+}
+.fuelbill-extra-list li {
+  font-size: 1.08em;
+  color: #e0e0e0;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.fuelbill-extra-paragraph {
+  color: #e0e0e0;
+  font-size: 1.08em;
+  margin-bottom: 18px;
+}
+.fuelbill-extra-cta {
+  margin-top: 18px;
+  font-size: 1.25em;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(90deg, #1de9b6 0%, #43a047 100%);
+  border-radius: 8px;
+  padding: 12px 0;
+  text-align: center;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+@media (max-width: 600px) {
+  .fuelbill-extra-info-section .container {
+    padding: 8px 2px 12px 2px;
+  }
+  .fuelbill-extra-title {
+    font-size: 1.15em;
+  }
+  .fuelbill-extra-cta {
+    font-size: 1em;
+    padding: 8px 0;
+  }
+} 
+
+.fuelbill-extra-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border-radius: 15px;
+  border: 1px solid #333;
+  box-shadow: 0 2px 16px 0 #0002;
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto 24px auto;
+  padding: 28px 20px 32px 20px;
+  text-align: left;
+}
+.fuelbill-extra-card:last-child {
+  margin-bottom: 0;
+}
+@media (max-width: 600px) {
+  .fuelbill-extra-info-section .container {
+    padding: 8px 2px 12px 2px;
+  }
+  .fuelbill-extra-card {
+    padding: 12px 4px 16px 4px;
+    max-width: 100%;
+  }
+} 
+
+.fuelbill-info-section .container,
+.fuelbill-extra-info-section .container,
+.fuelbill-extra-card {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+} 
+
+.fuelbill-info-section-additional {
+  margin-top: 40px;
+  margin-bottom: 0;
+  width: 100%;
+}
+.fuelbill-info-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border-radius: 15px;
+  border: 1px solid #333;
+  box-shadow: 0 2px 16px 0 #0002;
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto 24px auto;
+  padding: 28px 20px 32px 20px;
+  text-align: left;
+}
+.fuelbill-info-card:last-child {
+  margin-bottom: 0;
+}
+.fuelbill-info-title {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: #fff;
+}
+.fuelbill-info-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 18px;
+}
+.fuelbill-info-list li {
+  font-size: 1.08em;
+  color: #e0e0e0;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.fuelbill-info-paragraph {
+  color: #e0e0e0;
+  font-size: 1.08em;
+  margin-bottom: 18px;
+}
+.fuelbill-info-cta {
+  margin-top: 18px;
+  font-size: 1.25em;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 8px;
+  padding: 12px 0;
+  text-align: center;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+@media (max-width: 600px) {
+  .fuelbill-info-card {
+    padding: 12px 4px 16px 4px;
+    max-width: 100%;
+  }
+  .fuelbill-info-title {
+    font-size: 1.15em;
+  }
+  .fuelbill-info-cta {
+    font-size: 1em;
+    padding: 8px 0;
+  }
+} 
+
+.fuelbill-info-section .section-title {
+  font-size: 1.5em;
+}
+@media (max-width: 600px) {
+  .fuelbill-info-section .section-title {
+    font-size: 1em;
+  }
+} 
+
+@media (max-width:1024px) and (min-width:700px){
+  .fuel-bill-generator-container {
+    padding-bottom: 10rem;
+  }
+  
+} 
+
+@media (max-width: 600px) {
+  .fuel-bill-generator-container,
+  .download-container { /* adjust to your actual class */
+    width: 100vw !important;
+    min-width: 0 !important;
+    max-width: 100vw !important;
+    overflow-x: auto !important;
+  }
+} 
