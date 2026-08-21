@@ -155,19 +155,22 @@ const Beautifier = () => {
     setInputCode(value);
     if (value.trim()) {
       const detected = detectLanguage(value);
-      if (detected !== 'auto') {
+      if (detected && detected !== 'auto') {
         setDetectedLanguage(detected);
+        setSelectedLanguage(detected);
       }
     } else {
       setDetectedLanguage('');
+      setSelectedLanguage('auto');
     }
   };
 
   const handleInputBlur = () => {
     if (inputCode.trim()) {
       const detected = detectLanguage(inputCode);
-      if (detected !== 'auto') {
+      if (detected && detected !== 'auto') {
         setDetectedLanguage(detected);
+        setSelectedLanguage(detected);
       }
     }
   };
@@ -178,8 +181,9 @@ const Beautifier = () => {
       if (text) {
         setInputCode(text);
         const detected = detectLanguage(text);
-        if (detected !== 'auto') {
+        if (detected && detected !== 'auto') {
           setDetectedLanguage(detected);
+          setSelectedLanguage(detected);
         }
         setPasted(true);
         setTimeout(() => setPasted(false), 1500);
@@ -194,15 +198,15 @@ const Beautifier = () => {
     setOutputCode('');
     setError('');
     setDetectedLanguage('');
+    setSelectedLanguage('auto');
   };
 
   const loadSample = (langKey) => {
-    const key = langKey || (selectedLanguage === 'auto' ? 'js' : selectedLanguage);
+    const key = langKey || 'js';
     const sample = sampleCodes[key] || sampleCodes.js;
     setInputCode(sample);
-    if (selectedLanguage === 'auto') {
-      setDetectedLanguage(key);
-    }
+    setDetectedLanguage(key);
+    setSelectedLanguage(key);
     setError('');
   };
 
@@ -303,23 +307,11 @@ const Beautifier = () => {
               onChange={(e) => setSelectedLanguage(e.target.value)}
               className="bg-black/60 text-white text-xs rounded-lg px-2.5 py-1.5 border border-white/10 focus:outline-none focus:border-purple-400 transition-colors cursor-pointer"
             >
-              {languages.map((lang) => {
-                let displayLabel = lang.label;
-                if (lang.value === 'auto') {
-                  if (detectedLanguage) {
-                    const detectedObj = languages.find((l) => l.value === detectedLanguage);
-                    const name = detectedObj ? detectedObj.label : detectedLanguage.toUpperCase();
-                    displayLabel = `Auto Detect (${name})`;
-                  } else {
-                    displayLabel = 'Auto Detect';
-                  }
-                }
-                return (
-                  <option key={lang.value} value={lang.value} className="bg-gray-900 text-white">
-                    {displayLabel}
-                  </option>
-                );
-              })}
+              {languages.map((lang) => (
+                <option key={lang.value} value={lang.value} className="bg-gray-900 text-white">
+                  {lang.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>
