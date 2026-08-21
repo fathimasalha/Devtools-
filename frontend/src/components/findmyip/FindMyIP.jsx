@@ -11,6 +11,9 @@ const FindMyIP = () => {
   const [error, setError] = useState(null);
   const [mapError, setMapError] = useState(false);
 
+  const isIPv4 = (ip) => typeof ip === 'string' && /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(ip.trim());
+  const isIPv6 = (ip) => typeof ip === 'string' && ip.includes(':');
+
   const fetchIpInfo = async () => {
     try {
       setLoading(true);
@@ -26,7 +29,23 @@ const FindMyIP = () => {
           const endpoint = apiUrl ? `${apiUrl}/api/ipinfo/` : 'http://localhost:8000/api/ipinfo/';
           const response = await axios.get(endpoint, { timeout: 4000 });
           if (response.data && response.data.ip) {
-            data = response.data;
+            const d = response.data;
+            const rawIp = d.ip;
+            data = {
+              ipv4: isIPv4(rawIp) ? rawIp : (isIPv4(d.ipv4) ? d.ipv4 : null),
+              ipv6: isIPv6(d.ipv6) ? d.ipv6 : (isIPv6(rawIp) ? rawIp : null),
+              ip: rawIp,
+              city: d.city || 'Unknown',
+              region: d.region || 'Unknown',
+              country: d.country || 'Unknown',
+              isp: d.isp || d.org || 'Unknown',
+              org: d.org || d.isp || 'Unknown',
+              asn: d.asn || 'Unknown',
+              timezone: d.timezone || 'Unknown',
+              latitude: d.latitude || null,
+              longitude: d.longitude || null,
+              postal: d.postal || 'Unknown',
+            };
           }
         } catch (apiErr) {
           console.warn('Backend IP API not reachable, falling back to direct lookup:', apiErr.message);
@@ -40,9 +59,11 @@ const FindMyIP = () => {
           const res = await axios.get('https://ipwho.is/', { timeout: 6000 });
           if (res.data && res.data.success !== false && res.data.ip) {
             const d = res.data;
+            const primaryIp = d.ip;
             data = {
-              ip: d.ip,
-              ipv6: d.type === 'IPv6' ? d.ip : null,
+              ipv4: isIPv4(primaryIp) ? primaryIp : null,
+              ipv6: isIPv6(primaryIp) ? primaryIp : null,
+              ip: primaryIp,
               city: d.city || 'Unknown',
               region: d.region || 'Unknown',
               country: d.country || 'Unknown',
@@ -65,9 +86,11 @@ const FindMyIP = () => {
             const res = await axios.get('https://freeipapi.com/api/json', { timeout: 6000 });
             if (res.data && res.data.ipAddress) {
               const d = res.data;
+              const primaryIp = d.ipAddress;
               data = {
-                ip: d.ipAddress,
-                ipv6: d.ipVersion === 6 ? d.ipAddress : null,
+                ipv4: isIPv4(primaryIp) ? primaryIp : null,
+                ipv6: isIPv6(primaryIp) ? primaryIp : null,
+                ip: primaryIp,
                 city: d.cityName || 'Unknown',
                 region: d.regionName || 'Unknown',
                 country: d.countryName || 'Unknown',
@@ -91,9 +114,11 @@ const FindMyIP = () => {
             const res = await axios.get('https://ipapi.co/json/', { timeout: 6000 });
             if (res.data && res.data.ip) {
               const d = res.data;
+              const primaryIp = d.ip;
               data = {
-                ip: d.ip,
-                ipv6: d.version === 'IPv6' ? d.ip : null,
+                ipv4: isIPv4(primaryIp) ? primaryIp : null,
+                ipv6: isIPv6(primaryIp) ? primaryIp : null,
+                ip: primaryIp,
                 city: d.city || 'Unknown',
                 region: d.region || 'Unknown',
                 country: d.country_name || 'Unknown',
@@ -116,15 +141,34 @@ const FindMyIP = () => {
         throw new Error('Failed to retrieve IP information from available providers.');
       }
 
-      // Check for IPv6 if not already detected (non-blocking best-effort)
+      // Explicitly fetch IPv4 if not yet detected (e.g. browser connected to provider via IPv6)
+      if (!data.ipv4) {
+        try {
+          const v4Res = await axios.get('https://api4.ipify.org?format=json', { timeout: 3000 });
+          if (v4Res.data && v4Res.data.ip && isIPv4(v4Res.data.ip)) {
+            data.ipv4 = v4Res.data.ip;
+          }
+        } catch (v4Err) {
+          try {
+            const v4Fallback = await axios.get('https://api.ipify.org?format=json', { timeout: 3000 });
+            if (v4Fallback.data && v4Fallback.data.ip && isIPv4(v4Fallback.data.ip)) {
+              data.ipv4 = v4Fallback.data.ip;
+            }
+          } catch (e) {
+            // User network may not have a public IPv4
+          }
+        }
+      }
+
+      // Explicitly fetch IPv6 if not yet detected (e.g. browser connected to provider via IPv4)
       if (!data.ipv6) {
         try {
-          const v6Res = await axios.get('https://api6.ipify.org?format=json', { timeout: 2000 });
-          if (v6Res.data && v6Res.data.ip && v6Res.data.ip.includes(':')) {
+          const v6Res = await axios.get('https://api6.ipify.org?format=json', { timeout: 3000 });
+          if (v6Res.data && v6Res.data.ip && isIPv6(v6Res.data.ip)) {
             data.ipv6 = v6Res.data.ip;
           }
         } catch (v6Err) {
-          // User's network is IPv4-only, ignore
+          // User network is IPv4-only
         }
       }
 
@@ -194,10 +238,10 @@ const FindMyIP = () => {
           {ipInfo && (
             <div className="findmyip-info-list">
               {[
-                { label: 'IPv4 Address', value: ipInfo.ip },
-                { label: 'IPv6 Address', value: ipInfo.ipv6 || 'Not Detected' },
+                { label: 'IPv4 Address', value: (ipInfo.ipv4 && isIPv4(ipInfo.ipv4)) ? ipInfo.ipv4 : 'Not Detected' },
+                { label: 'IPv6 Address', value: (ipInfo.ipv6 && isIPv6(ipInfo.ipv6)) ? ipInfo.ipv6 : 'Not Detected' },
                 { label: 'Location', value: [ipInfo.city, ipInfo.region, ipInfo.country].filter(Boolean).join(', ') || 'N/A' },
-                { label: 'ISP', value: ipInfo.org || 'N/A' },
+                { label: 'ISP', value: ipInfo.org || ipInfo.isp || 'N/A' },
                 { label: 'ASN', value: (ipInfo.asn || 'N/A').toString().split(' ')[0] },
                 { label: 'Timezone', value: ipInfo.timezone || 'N/A' },
                 { label: 'Postal Code', value: ipInfo.postal || 'N/A' },

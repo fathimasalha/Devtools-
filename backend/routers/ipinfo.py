@@ -49,10 +49,28 @@ async def get_ip_info(request: Request):
             pass
 
         # Format response
+        is_client_v6 = ":" in client_ip
+        is_client_v4 = "." in client_ip and ":" not in client_ip
+        
+        ipv4_address = client_ip if is_client_v4 else None
+        ipv6_address = client_ip if is_client_v6 else None
+
+        # If we have IPv6 but not IPv4, try fetching IPv4
+        if not ipv4_address:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get("https://api4.ipify.org?format=json", timeout=aiohttp.ClientTimeout(total=2)) as response:
+                        if response.status == 200:
+                            v4_data = await response.json()
+                            if v4_data.get("ip") and ":" not in v4_data.get("ip"):
+                                ipv4_address = v4_data.get("ip")
+            except Exception:
+                pass
+
         if geo_data.get("success") is not False and geo_data.get("ip"):
             ip_info = {
-                "ip": client_ip,
-                "ipv6": client_ip if ":" in client_ip else None,
+                "ip": ipv4_address or client_ip,
+                "ipv6": ipv6_address,
                 "city": geo_data.get("city") or "Unknown",
                 "region": geo_data.get("region") or "Unknown",
                 "country": geo_data.get("country") or "Unknown",
@@ -66,8 +84,8 @@ async def get_ip_info(request: Request):
             }
         else:
             ip_info = {
-                "ip": client_ip,
-                "ipv6": None,
+                "ip": ipv4_address or client_ip,
+                "ipv6": ipv6_address,
                 "city": "Unknown",
                 "region": "Unknown",
                 "country": "Unknown",
