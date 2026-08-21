@@ -50,6 +50,27 @@ const Beautifier = () => {
   const [selectedLanguage, setSelectedLanguage] = useState('auto');
   const [detectedLanguage, setDetectedLanguage] = useState('');
   const [pasted, setPasted] = useState(false);
+  const [editorHeight, setEditorHeight] = useState(
+    typeof window !== 'undefined' && window.innerWidth < 640 
+      ? '330px' 
+      : typeof window !== 'undefined' && window.innerWidth < 1024 
+        ? '390px' 
+        : '480px'
+  );
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setEditorHeight('330px');
+      } else if (window.innerWidth < 1024) {
+        setEditorHeight('390px');
+      } else {
+        setEditorHeight('480px');
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Enhanced function to detect language based on code content
   const detectLanguage = (code) => {
@@ -295,17 +316,17 @@ const Beautifier = () => {
       </div>
 
       {/* Main Control Toolbar */}
-      <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3.5 sm:gap-4">
         {/* Left: Language Selector */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
-            <Code2 size={16} className="text-purple-400" />
-            <label htmlFor="language" className="text-xs font-medium text-gray-300">Language:</label>
+        <div className="flex items-center justify-between sm:justify-start gap-2.5">
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2 w-full sm:w-auto">
+            <Code2 size={16} className="text-purple-400 flex-shrink-0" />
+            <label htmlFor="language" className="text-xs font-medium text-gray-300 whitespace-nowrap">Language:</label>
             <select
               id="language"
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="bg-black/60 text-white text-xs rounded-lg px-2.5 py-1.5 border border-white/10 focus:outline-none focus:border-purple-400 transition-colors cursor-pointer"
+              className="bg-black/60 text-white text-xs rounded-lg px-2.5 py-1.5 border border-white/10 focus:outline-none focus:border-purple-400 transition-colors cursor-pointer flex-1 sm:flex-none"
             >
               {languages.map((lang) => (
                 <option key={lang.value} value={lang.value} className="bg-gray-900 text-white">
@@ -317,15 +338,15 @@ const Beautifier = () => {
         </div>
 
         {/* Right: Quick actions and Beautify button */}
-        <div className="flex items-center gap-2.5 flex-wrap ml-auto">
+        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-2.5 flex-wrap">
           {/* Sample Presets */}
-          <div className="hidden sm:flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
-            <span className="text-[11px] text-gray-400 px-2 font-medium">Samples:</span>
+          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 overflow-x-auto max-w-full">
+            <span className="text-[10px] sm:text-[11px] text-gray-400 px-1.5 sm:px-2 font-medium whitespace-nowrap">Samples:</span>
             {['js', 'python', 'json', 'html', 'css'].map((langKey) => (
               <button
                 key={langKey}
                 onClick={() => loadSample(langKey)}
-                className="px-2 py-1 rounded-lg text-[11px] font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors uppercase"
+                className="px-1.5 sm:px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-colors uppercase whitespace-nowrap"
               >
                 {langKey}
               </button>
@@ -336,11 +357,11 @@ const Beautifier = () => {
           {inputCode && (
             <button
               onClick={handleClear}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all duration-200"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl text-xs font-medium text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all duration-200"
               title="Clear editor"
             >
               <Trash2 size={14} />
-              <span>Clear</span>
+              <span className="hidden sm:inline">Clear</span>
             </button>
           )}
 
@@ -350,7 +371,7 @@ const Beautifier = () => {
             disabled={loading || !inputCode.trim()}
             whileHover={{ scale: inputCode.trim() ? 1.02 : 1 }}
             whileTap={{ scale: inputCode.trim() ? 0.98 : 1 }}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 shadow-lg ${
+            className={`flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all duration-300 shadow-lg w-full sm:w-auto ${
               loading || !inputCode.trim()
                 ? 'bg-white/10 text-gray-400 border border-white/5 cursor-not-allowed'
                 : 'bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 text-white shadow-purple-600/30 hover:shadow-purple-600/50 border border-purple-400/30'
@@ -358,12 +379,12 @@ const Beautifier = () => {
           >
             {loading ? (
               <>
-                <RefreshCw size={16} className="animate-spin text-white" />
+                <RefreshCw size={15} className="animate-spin text-white" />
                 <span>Beautifying...</span>
               </>
             ) : (
               <>
-                <Sparkles size={16} className="text-purple-200" />
+                <Sparkles size={15} className="text-purple-200" />
                 <span>Beautify Code</span>
               </>
             )}
@@ -378,10 +399,10 @@ const Beautifier = () => {
             initial={{ opacity: 0, y: -10 }} 
             animate={{ opacity: 1, y: 0 }} 
             exit={{ opacity: 0, y: -10 }}
-            className="flex items-center justify-between p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-300 text-sm"
+            className="flex items-center justify-between p-3.5 sm:p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-300 text-xs sm:text-sm"
           >
             <div className="flex items-center gap-2.5">
-              <AlertCircle size={18} className="text-rose-400 flex-shrink-0" />
+              <AlertCircle size={16} className="text-rose-400 flex-shrink-0" />
               <span>{error}</span>
             </div>
             <button 
@@ -395,27 +416,27 @@ const Beautifier = () => {
       </AnimatePresence>
 
       {/* Editors Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 w-full">
         {/* Left: Input Code Panel */}
-        <div className="flex flex-col bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-3.5 transition-all duration-300 hover:border-white/20">
-          <div className="flex items-center justify-between pb-2 border-b border-white/5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse" />
-              <h2 className="text-sm font-semibold text-white tracking-wide">Input Code</h2>
+        <div className="flex flex-col bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-3.5 sm:p-5 shadow-2xl space-y-3 transition-all duration-300 hover:border-white/20">
+          <div className="flex items-center justify-between pb-2 border-b border-white/5 gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse flex-shrink-0" />
+              <h2 className="text-xs sm:text-sm font-semibold text-white tracking-wide truncate">Input Code</h2>
               {charsCount > 0 && (
-                <span className="text-[11px] text-gray-400 font-mono">
-                  ({linesCount} lines • {charsCount} chars)
+                <span className="text-[10px] sm:text-[11px] text-gray-400 font-mono hidden xs:inline truncate">
+                  ({linesCount}L • {charsCount}C)
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               <button
                 onClick={handlePaste}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10 hover:text-white transition-all duration-200"
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-xs font-medium bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10 hover:text-white transition-all duration-200"
                 title="Paste from clipboard"
               >
-                {pasted ? <Check size={13} className="text-emerald-400" /> : <Clipboard size={13} />}
+                {pasted ? <Check size={12} className="text-emerald-400" /> : <Clipboard size={12} />}
                 <span>{pasted ? 'Pasted!' : 'Paste'}</span>
               </button>
             </div>
@@ -428,33 +449,35 @@ const Beautifier = () => {
               language={currentActiveLang}
               onBlur={handleInputBlur}
               onMouseLeave={handleInputBlur}
-              height="480px"
+              height={editorHeight}
             />
           </div>
         </div>
 
         {/* Right: Beautified Code Panel */}
-        <div className="flex flex-col bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-3.5 transition-all duration-300 hover:border-white/20">
-          <div className="flex items-center justify-between pb-2 border-b border-white/5">
-            <div className="flex items-center gap-2.5">
-              <div className={`w-2.5 h-2.5 rounded-full ${outputCode ? 'bg-emerald-500' : 'bg-gray-600'}`} />
-              <h2 className="text-sm font-semibold text-white tracking-wide">Beautified Code</h2>
+        <div className="flex flex-col bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-3.5 sm:p-5 shadow-2xl space-y-3 transition-all duration-300 hover:border-white/20">
+          <div className="flex items-center justify-between pb-2 border-b border-white/5 gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${outputCode ? 'bg-emerald-500' : 'bg-gray-600'}`} />
+              <h2 className="text-xs sm:text-sm font-semibold text-white tracking-wide truncate">Beautified Code</h2>
               {outputCode && (
-                <span className="text-[11px] text-emerald-400 font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <span className="text-[10px] sm:text-[11px] text-emerald-400 font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 hidden xs:inline">
                   Formatted
                 </span>
               )}
             </div>
 
             {/* Output Panel Actions: Copy & Download */}
-            <OutputPanel.Actions code={outputCode} language={currentActiveLang} />
+            <div className="flex-shrink-0">
+              <OutputPanel.Actions code={outputCode} language={currentActiveLang} />
+            </div>
           </div>
 
           <div className="flex-1 w-full">
             <OutputPanel
               code={outputCode}
               language={currentActiveLang}
-              height="480px"
+              height={editorHeight}
             />
           </div>
         </div>

@@ -212,6 +212,78 @@
   box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45);
 }
 
+/* Tablet & Mobile Media Queries */
+@media (max-width: 1024px) {
+  .beautifier-hero {
+    padding: 32px 20px;
+    margin-bottom: 24px;
+  }
+  .beautifier-hero h1 {
+    font-size: 1.6rem;
+  }
+  .beautifier-hero p {
+    font-size: 0.9rem;
+  }
+  .beautifier-section {
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .beautifier-languages-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .beautifier-steps-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .beautifier-hero {
+    padding: 24px 16px;
+    border-radius: 16px;
+  }
+  .beautifier-hero h1 {
+    font-size: 1.35rem;
+  }
+  .beautifier-hero p {
+    font-size: 0.85rem;
+  }
+  .beautifier-section {
+    padding: 16px;
+    border-radius: 16px;
+    margin: 16px 0;
+  }
+  .beautifier-section h2 {
+    font-size: 1.1rem;
+  }
+  .beautifier-section p {
+    font-size: 0.85rem;
+  }
+  .beautifier-languages-grid {
+    grid-template-columns: 1fr;
+  }
+  .beautifier-steps-container {
+    grid-template-columns: 1fr;
+  }
+  .beautifier-cta-section {
+    padding: 28px 16px;
+    border-radius: 16px;
+    margin-top: 28px;
+  }
+  .beautifier-cta-section h2 {
+    font-size: 1.3rem;
+  }
+  .beautifier-cta-section p {
+    font-size: 0.85rem;
+  }
+  .beautifier-cta-button {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
