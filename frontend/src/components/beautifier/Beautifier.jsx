@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import CodeEditor from './CodeEditor';
 import OutputPanel from './OutputPanel';
+import { beautifyCodeLocally } from './formatters';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, 
@@ -235,55 +236,77 @@ const Beautifier = () => {
     }
     setLoading(true);
     setError('');
+
+    let languageToSend = selectedLanguage;
+    if (selectedLanguage === 'auto') {
+      languageToSend = detectLanguage(inputCode);
+      if (languageToSend === 'auto') {
+        languageToSend = 'js';
+      }
+    }
+
     try {
-      let languageToSend = selectedLanguage;
-      if (selectedLanguage === 'auto') {
-        languageToSend = detectLanguage(inputCode);
-        if (languageToSend === 'auto') {
-          languageToSend = 'js';
+      const apiUrl = process.env.REACT_APP_API_URL;
+      let beautified = null;
+
+      // 1. If backend API is configured, optionally try remote API first
+      if (apiUrl) {
+        try {
+          const langMap = {
+            js: 'javascript',
+            python: 'python',
+            html: 'html',
+            css: 'css',
+            json: 'json',
+            java: 'java',
+          };
+          const apiLang = langMap[languageToSend] || languageToSend;
+          const endpoint = `${apiUrl}/api/beautify/`;
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: inputCode, language: apiLang }),
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.beautified_code) {
+              beautified = data.beautified_code;
+              if (data.language) {
+                setDetectedLanguage(data.language);
+              }
+            }
+          }
+        } catch (apiErr) {
+          console.warn('Remote beautify API unavailable, using client-side beautifier:', apiErr.message);
         }
       }
-      
-      const langMap = {
-        js: 'javascript',
-        python: 'python',
-        html: 'html',
-        css: 'css',
-        json: 'json',
-        java: 'java',
-      };
-      const apiLang = langMap[languageToSend] || languageToSend;
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-      const endpoint = `${apiUrl}/api/beautify/`;
-      
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code: inputCode, language: apiLang }),
-      });
-      
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || data.error || 'Failed to beautify code');
+
+      // 2. Client-side local beautifier (instant, works offline, in production Vercel / Netlify)
+      if (!beautified) {
+        beautified = beautifyCodeLocally(inputCode, languageToSend);
+        setDetectedLanguage(languageToSend);
       }
-      
-      setOutputCode(data.beautified_code || '');
-      if (data.language) {
-        setDetectedLanguage(data.language);
-      }
+
+      setOutputCode(beautified || '');
+      setError('');
     } catch (err) {
-      // Fallback for JSON formatting locally if API is offline
-      if (selectedLanguage === 'json' || detectLanguage(inputCode) === 'json') {
-        try {
-          const parsed = JSON.parse(inputCode);
-          setOutputCode(JSON.stringify(parsed, null, 2));
-          setError('');
-          return;
-        } catch (e) {}
+      console.error('Beautification error:', err);
+      try {
+        const localFormatted = beautifyCodeLocally(inputCode, languageToSend || 'js');
+        setOutputCode(localFormatted);
+        setError('');
+      } catch (fallbackErr) {
+        setError(fallbackErr.message || 'Error formatting code.');
       }
-      setError(err.message || 'Error communicating with beautifier service.');
     } finally {
       setLoading(false);
     }
